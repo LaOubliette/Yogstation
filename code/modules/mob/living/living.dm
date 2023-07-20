@@ -461,7 +461,7 @@
 	if(!resting)
 		set_resting(TRUE, FALSE)
 	else
-		if(do_after(src, 1 SECONDS, src))
+		if(do_after(src, 1 SECONDS, src, stayStill = FALSE))
 			set_resting(FALSE, FALSE)
 		else
 			to_chat(src, span_notice("You fail to get up."))
@@ -983,6 +983,10 @@
 //used in datum/reagents/reaction() proc
 /mob/living/proc/get_permeability(def_zone, linear = FALSE)
 	return 1
+
+/// Returns the type of organs, reagents, and symptoms this mob is compatible with
+/mob/living/proc/get_process_flags()
+	return (MOB_ROBOTIC in mob_biotypes) ? SYNTHETIC : ORGANIC // makes assumptions, override if you want something specific
 
 /mob/living/proc/harvest(mob/living/user) //used for extra objects etc. in butchering
 	return
