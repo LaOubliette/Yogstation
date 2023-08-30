@@ -34,7 +34,7 @@
 		'sound/voice/cpdeath/die4.ogg',
 	)
 	///List of all lines that can be said by the sechailer, with their respective sound file.
-	var/list/sechailer_voicelines = list(
+	var/static/list/sechailer_voicelines = list(
 		"Affirmative" = 'sound/voice/cpvoicelines/affirmative.ogg',
 		"Copy" = 'sound/voice/cpvoicelines/copy.ogg',
 		"Alright, you can go" = 'sound/voice/cpvoicelines/allrightyoucango.ogg',
@@ -129,17 +129,19 @@
 	else
 		adjustmask(user)
 
-/obj/item/clothing/mask/gas/sechailer/emag_act(mob/user as mob)
+/obj/item/clothing/mask/gas/sechailer/emag_act(mob/user, obj/item/card/emag/emag_card)
 	if(obj_flags & EMAGGED)
-		obj_flags |= EMAGGED
-		to_chat(user, span_warning("You silently fry [src]'s vocal circuit with the cryptographic sequencer."))
-
+		return
+	obj_flags |= EMAGGED
+	to_chat(user, span_warning("You silently fry [src]'s vocal circuit with the cryptographic sequencer."))
+	return TRUE
+	
 /obj/item/clothing/mask/gas/sechailer/handle_speech(datum/source, mob/speech_args)
 	if(!voicetoggled)
 		return
 	var/full_message = speech_args[SPEECH_MESSAGE]
 	for(var/lines in sechailer_voicelines)
-		if(findtext(full_message, lines, 1, 30))
+		if(findtext(full_message, lines))
 			playsound(source, sechailer_voicelines[lines], 50, FALSE)
 			return // only play the first.
 

@@ -36,7 +36,7 @@
 
 /obj/item/storage/box/Initialize(mapload)
 	. = ..()
-	update_icon()
+	update_appearance(UPDATE_ICON)
 
 /obj/item/storage/box/suicide_act(mob/living/carbon/user)
 	var/obj/item/bodypart/head/myhead = user.get_bodypart(BODY_ZONE_HEAD)
@@ -49,11 +49,10 @@
 	user.visible_message(span_suicide("[user] attempts to put [user.p_their()] head into \the [src], but realizes [user.p_their()] has no head!"))
 	return SHAME
 
-/obj/item/storage/box/update_icon()
+/obj/item/storage/box/update_overlays()
 	. = ..()
 	if(illustration)
-		cut_overlays()
-		add_overlay(illustration)
+		. += illustration
 
 /obj/item/storage/box/attack_self(mob/user)
 	..()
@@ -652,6 +651,15 @@
 /obj/item/storage/box/firingpins/PopulateContents()
 	for(var/i in 1 to 5)
 		new /obj/item/firing_pin(src)
+	
+/obj/item/storage/box/firingpins/syndicate
+	name = "box of syndicate firing pins"
+	desc = "A box full of Syndicate-issue secure firing pins, to allow newly-developed firearms to operate."
+	illustration = "id"
+
+/obj/item/storage/box/firingpins/syndicate/PopulateContents()
+	for(var/i in 1 to 5)
+		new /obj/item/firing_pin/implant/pindicate(src) //why did you fucks name it pindicate just name it syndicate its not funny at all
 
 /obj/item/storage/box/secfiringpins
 	name = "box of mindshield firing pins"
@@ -977,10 +985,12 @@
 	foldable = null
 	var/design = NODESIGN
 
-/obj/item/storage/box/papersack/update_icon()
+/obj/item/storage/box/papersack/update_icon_state()
+	. = ..()
 	if(contents.len == 0)
 		icon_state = "[item_state]"
-	else icon_state = "[item_state]_closed"
+	else
+		icon_state = "[item_state]_closed"
 
 /obj/item/storage/box/papersack/attackby(obj/item/W, mob/user, params)
 	if(istype(W, /obj/item/pen))

@@ -50,7 +50,7 @@ CIGARETTE PACKETS ARE IN FANCY.DM
 		desc = "A [initial(name)]. This one is lit."
 		attack_verb = list("burnt","singed")
 		START_PROCESSING(SSobj, src)
-		update_icon()
+		update_appearance(UPDATE_ICON)
 
 /obj/item/match/proc/matchburnout()
 	if(lit)
@@ -578,7 +578,7 @@ CIGARETTE PACKETS ARE IN FANCY.DM
 	. = ..()
 	if(!overlay_state)
 		overlay_state = pick(overlay_list)
-	update_icon()
+	update_appearance(UPDATE_ICON)
 
 /obj/item/lighter/cyborg_unequip(mob/user)
 	if(!lit)
@@ -594,11 +594,11 @@ CIGARETTE PACKETS ARE IN FANCY.DM
 		user.visible_message(span_suicide("[user] begins whacking [user.p_them()]self with \the [src]! It looks like [user.p_theyre()] trying to commit suicide!"))
 		return BRUTELOSS
 
-/obj/item/lighter/update_icon()
-	cut_overlays()
+/obj/item/lighter/update_overlays()
+	. = ..()
 	var/mutable_appearance/lighter_overlay = mutable_appearance(icon,"lighter_overlay_[overlay_state][lit ? "-on" : ""]")
 	icon_state = "[initial(icon_state)][lit ? "-on" : ""]"
-	add_overlay(lighter_overlay)
+	. += lighter_overlay
 
 /obj/item/lighter/ignition_effect(atom/A, mob/user)
 	if(is_hot())
@@ -621,7 +621,7 @@ CIGARETTE PACKETS ARE IN FANCY.DM
 		attack_verb = null //human_defense.dm takes care of it
 		STOP_PROCESSING(SSobj, src)
 	set_light_on(lit)
-	update_icon()
+	update_appearance(UPDATE_ICON)
 
 /obj/item/lighter/extinguish()
 	set_lit(FALSE)
@@ -726,14 +726,14 @@ CIGARETTE PACKETS ARE IN FANCY.DM
 	. = ..()
 	if(!lighter_color)
 		lighter_color = pick(color_list)
-	update_icon()
+	update_appearance(UPDATE_ICON)
 
-/obj/item/lighter/greyscale/update_icon()
-	cut_overlays()
+/obj/item/lighter/greyscale/update_overlays()
+	. = ..()
 	var/mutable_appearance/lighter_overlay = mutable_appearance(icon,"lighter_overlay_[overlay_state][lit ? "-on" : ""]")
 	icon_state = "[initial(icon_state)][lit ? "-on" : ""]"
 	lighter_overlay.color = lighter_color
-	add_overlay(lighter_overlay)
+	. += lighter_overlay
 
 /obj/item/lighter/greyscale/ignition_effect(atom/A, mob/user)
 	if(is_hot())
@@ -864,21 +864,21 @@ CIGARETTE PACKETS ARE IN FANCY.DM
 			..()
 
 
-/obj/item/clothing/mask/vape/emag_act(mob/user)// I WON'T REGRET WRITTING THIS, SURLY.
-	if(screw)
-		if(!(obj_flags & EMAGGED))
-			cut_overlays()
-			obj_flags |= EMAGGED
-			super = 0
-			to_chat(user, span_warning("You maximize the voltage of [src]."))
-			add_overlay("vapeopen_high")
-			var/datum/effect_system/spark_spread/sp = new /datum/effect_system/spark_spread //for effect
-			sp.set_up(5, 1, src)
-			sp.start()
-		else
-			to_chat(user, span_warning("[src] is already emagged!"))
-	else
+/obj/item/clothing/mask/vape/emag_act(mob/user, obj/item/card/emag/emag_card)// I WON'T REGRET WRITTING THIS, SURLY.
+	if(!screw)
 		to_chat(user, span_notice("You need to open the cap to do that."))
+		return FALSE
+	if(obj_flags & EMAGGED)
+		to_chat(user, span_warning("[src] is already emagged!"))
+		return FALSE
+	cut_overlays()
+	obj_flags |= EMAGGED
+	super = 0
+	to_chat(user, span_warning("You maximize the voltage of [src]."))
+	add_overlay("vapeopen_high")
+	var/datum/effect_system/spark_spread/sp = new /datum/effect_system/spark_spread //for effect
+	sp.set_up(5, 1, src)
+	sp.start()
 
 /obj/item/clothing/mask/vape/attack_self(mob/user)
 	if(reagents.total_volume > 0)
